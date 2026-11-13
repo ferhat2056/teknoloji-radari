@@ -1,0 +1,38 @@
+name: Gunluk teknoloji haberleri
+on:
+  schedule:
+    - cron: '15 6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: daily-news
+  cancel-in-progress: false
+jobs:
+  news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
+        with:
+          dotnet-version: '10.0.x'
+      - name: Test
+        run: dotnet run -- --self-test
+      - name: Haberleri gonder
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: dotnet run --no-build -- --send
+      - name: Gonderilen haberleri kaydet
+        if: always()
+        run: |
+          if [ -f state/seen.json ]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add state/seen.json
+            if ! git diff --cached --quiet; then
+              git commit -m 'chore: remember delivered news'
+              git push
+            fi
+          fi

@@ -1,30 +1,39 @@
 # Teknoloji Radarım
 
-Android'de Telegram üzerinden kullanılacak kişisel teknoloji takipçisi.
+C# / .NET 10 ile yazılmış kişisel Telegram haber takipçisi.
 
-## Tamamlanan ilk adım
+## Kullanım
 
-- .NET 10 / C# konsol uygulaması Telegram Bot API bağlantısını sınar.
-- Bekleyen mesajlarda yalnızca tek bir özel `/start` sohbeti varsa deneme mesajı gönderir.
-- Token `.secrets/token`, alıcı `.secrets/chat-id` dosyasında tutulur. Bu klasör Git'e eklenmez.
-- Token alternatif olarak `TELEGRAM_BOT_TOKEN` ortam değişkeninden okunabilir.
-- Harici NuGet paketi kullanılmaz. Hata çıktılarında token veya sohbet bilgisi yazdırılmaz.
+- `dotnet run -- --self-test`: RSS, Atom, güvenli XML, tarih, tekrar ve Telegram mesaj boyutu testleri. Ağa veya Telegram'a erişmez.
+- `dotnet run`: resmî akışlardan son 7 günün haberlerini önizler; mesaj göndermez.
+- `dotnet run -- --send`: her kaynaktan en fazla 3, toplam en fazla 12 yeni haber seçip toplu Telegram mesajları gönderir.
 
-Çalıştırma: `dotnet run`. Bu komut gerçek bir Telegram deneme mesajı gönderir.
+Kaynaklar: Microsoft .NET Blog, Python Blog, Hugging Face Blog, GitHub Changelog. Bir kaynak okunamazsa diğerleri devam eder ve Telegram'da uyarı gönderilir; tamamı başarısızsa işlem hata verir.
+
+## Otomatik çalışma
+
+GitHub Actions `news.yml`, her gün 06.15 UTC (Türkiye 09.15) ve elle tetiklendiğinde çalışır. Standart `ubuntu-latest` çalıştırıcısı kullanılır; harici paket veya ücretli API yoktur. GitHub zamanlanmış görevleri geciktirebilir; açık depolarda uzun süre etkinlik olmazsa zamanlamayı durdurabilir.
+
+Gerekli GitHub Actions Secrets: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`. Yerelde bunlar `.secrets/token` ve `.secrets/chat-id` dosyalarından da okunur. Gizli dosyalar Git'e eklenmez. Sohbet alıcısı kullanıcı tarafından başlatılmış özel sohbete sabitlenir; başkaları botu başlatarak alıcıyı değiştiremez.
+
+Gönderilen bağlantıların SHA-256 değerleri `state/seen.json` içinde saklanır; kişisel sohbet verisi saklanmaz. Başarılı gönderimden sonra durum kaydedilir. Telegram gönderimi ile GitHub'a durum kaydı tek işlem olmadığından, durum kaydının başarısız olduğu olağan dışı durumlarda tekrar gönderim olabilir. Gönderim hataları otomatik tekrar denenmez.
+
+Durdurmak için GitHub Actions ekranında günlük iş akışını devre dışı bırakın. Yerel `--send` ile bulut görevini aynı anda çalıştırmayın; yerel ve bulut durum dosyaları ayrıdır.
+
+## Sınırlar
+
+Kategori ve arayüz metinleri Türkçe, haber başlıkları kaynak dilindedir. Yapay zekâ özeti ve çeviri henüz yoktur. Anlık önemli haber uyarısı, Telegram komutlarına cevap ve kod düzenleme özellikleri henüz yoktur. Bu bot bu Codex sohbetine bağlı değildir.
 
 ## Doğrulama
 
-`dotnet build` başarılı. Canlı bağlantı testinde Telegram mesajı kabul etti ve mesaj sohbet ekranında doğrulandı.
+Yerel öz testler ve gerçek kaynak önizlemesi başarılıdır. İlk sürümde C# üzerinden gönderilen bağlantı mesajı Telegram sohbetinde doğrulandı. Günlük görev bulutta ayrıca çalıştırılarak doğrulanmalıdır.
 
-## Sonraki adımlar
+## Resmî kaynaklar
 
-1. Resmî haber kaynaklarından güncel içerikleri toplamak ve tekrarları elemek.
-2. Türkçe haber sunumu için ücretsiz yöntemi belirlemek. Şu anda çeviri veya yapay zekâ özeti yok.
-3. GitHub Actions ücretsiz kullanım koşullarını kontrol edip Mac kapalıyken günlük çalışmayı kurmak. Zamanlama henüz yok; GitHub'a yüklenmedi.
-4. Telegram'dan kod düzenleme isteğini ayrıca tasarlamak. Bu uygulama sohbet asistanı veya uzaktan komut çalıştırma aracı değildir.
-
-## Kaynaklar
-
-- https://core.telegram.org/bots/api#getupdates
 - https://core.telegram.org/bots/api#sendmessage
 - https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule
+- https://docs.github.com/en/billing/concepts/product-billing/github-actions
+- https://devblogs.microsoft.com/dotnet/feed/
+- https://blog.python.org/feeds/posts/default
+- https://huggingface.co/blog/feed.xml
+- https://github.blog/changelog/feed/
