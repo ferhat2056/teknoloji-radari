@@ -3,7 +3,8 @@ using System.Text.Json;
 
 try
 {
-    if (args.Contains("--self-test")) { News.SelfTest(); return; }
+    if (args.Contains("--self-test")) { News.SelfTest(); TutorTests.Run(); return; }
+    if (args.Contains("--tutor")) { await Tutor.Run(); return; }
     var send = args.Contains("--send");
     var statePath = Environment.GetEnvironmentVariable("STATE_PATH") ?? "state/seen.json";
     var seen = File.Exists(statePath)

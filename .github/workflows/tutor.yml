@@ -1,0 +1,40 @@
+name: Telegram CSharp ogretmeni
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: daily-news
+  cancel-in-progress: false
+jobs:
+  tutor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
+        with:
+          dotnet-version: '10.0.x'
+      - name: Guvenlik ve uygulama testleri
+        run: dotnet run -- --self-test
+      - name: Ders mesajlarini yanitla
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TUTOR_STATE_KEY: ${{ secrets.TUTOR_STATE_KEY }}
+        run: dotnet run --no-build -- --tutor
+      - name: Sifreli ders durumunu kaydet
+        if: always()
+        run: |
+          if [ -f state/tutor.enc ]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add state/tutor.enc
+            if ! git diff --cached --quiet; then
+              git commit -m 'chore: save encrypted lesson state'
+              git push
+            fi
+          fi
