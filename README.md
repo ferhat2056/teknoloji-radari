@@ -61,3 +61,10 @@ Resmî Gemini belgeleri:
 - https://aistudio.google.com/docs/models/gemini-3.5-flash-lite
 - https://aistudio.google.com/docs/pricing#gemini-3.5-flash-lite
 - https://aistudio.google.com/api-reference/generate-content
+
+## Canlı öğretmen doğrulaması
+
+14 Kasım 2026: İlk ders Gemini tarafından üretildi ve Telegram sohbetinde görüldü. Ardından Telegram'dan `/ders` komutu gönderilerek önceki bağlamı kullanan yeni yanıtın ulaştığı doğrulandı. Her iki bulut görevinde test, yanıt gönderimi ve şifreli durum kaydı başarılıdır:
+
+- https://github.com/ferhat2056/teknoloji-radari/actions/runs/43519936132
+- https://github.com/ferhat2056/teknoloji-radari/actions/runs/43520141538
